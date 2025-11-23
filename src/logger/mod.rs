@@ -69,15 +69,15 @@ impl Log for FileLogger {
             let _ = file.flush();
         }
 
-        // let _ = io::stdout().write_all(message.as_bytes());
-        // let _ = io::stdout().flush();
+        let _ = io::stdout().write_all(message.as_bytes());
+        let _ = io::stdout().flush();
     }
 
     fn flush(&self) {
         if let Ok(mut file) = self.log_file.lock() {
             let _ = file.flush();
         }
-        // let _ = io::stdout().flush();
+        let _ = io::stdout().flush();
     }
 }
 

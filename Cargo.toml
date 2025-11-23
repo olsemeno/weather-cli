@@ -8,6 +8,7 @@ chrono = "0.4"
 log = { version = "0.4.20", features = ["std"] }
 lazy_static = "1.4"
 anyhow = "1.0"
+thiserror = "1.0"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"

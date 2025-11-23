@@ -1,15 +1,13 @@
-
+use crate::config::app_config::AppConfig;
+use crate::enums::ProviderType;
 use crate::errors::config_error::ConfigError;
 use log::LevelFilter;
 use std::env;
 use std::fs;
 use std::path::PathBuf;
-use crate::config::app_config::AppConfig;
+use std::str::FromStr;
 
-
-// original one from another project: https://github.com/specure/nettest/blob/main/src/config/parser.rs
 pub fn read_config_file() -> Result<AppConfig, ConfigError> {
-
     // Determine config file path based on OS
     let config_path = if cfg!(target_os = "macos") {
         // On macOS use ~/.config/ as main directory
@@ -26,7 +24,7 @@ pub fn read_config_file() -> Result<AppConfig, ConfigError> {
         if let Some(parent) = config_path.parent() {
             if !parent.exists() {
                 if let Err(e) = fs::create_dir_all(parent) {
-                   let error = format!("Could not create config directory: {}", e);
+                    let error = format!("Could not create config directory: {}", e);
                     return Err(ConfigError::ConfigDirectoryNotFound(error));
                 }
             }
@@ -36,12 +34,14 @@ pub fn read_config_file() -> Result<AppConfig, ConfigError> {
         if let Err(e) = fs::write(&config_path, &default_config) {
             let error = format!("Could not create config file: {}", e);
             return Err(ConfigError::InvalidConfig(error));
-        } 
+        }
 
         default_config.to_string()
     };
 
-    parse_config_content(&config_content)
+    let mut app_config = parse_config_content(&config_content)?;
+    app_config.config_path = Some(config_path);
+    Ok(app_config)
 }
 
 fn parse_config_content(content: &str) -> Result<AppConfig, ConfigError> {
@@ -59,26 +59,62 @@ fn parse_config_content(content: &str) -> Result<AppConfig, ConfigError> {
             let value = value.trim().trim_matches('"');
 
             match key {
+                "provider" => {
+                    config.provider = ProviderType::from_str(value)?;
+                }
                 "logger" => {
                     config.logger = match value {
                         "info" => LevelFilter::Info,
                         "debug" => LevelFilter::Debug,
                         "trace" => LevelFilter::Trace,
                         _ => {
-                            return Err(ConfigError::InvalidConfig(
-                                format!("Unknown logger level: {}", value)
-                            ));
+                            return Err(ConfigError::InvalidConfig(format!(
+                                "Unknown logger level: {}",
+                                value
+                            )));
                         }
                     };
                 }
                 _ => {
-                    return Err(ConfigError::InvalidConfig(
-                        format!("Unknown config key: {}", key)
-                    ));
+                    return Err(ConfigError::InvalidConfig(format!(
+                        "Unknown config key: {}",
+                        key
+                    )));
                 }
             }
         }
     }
 
     Ok(config)
+}
+
+pub fn save_config_file(app_config: &AppConfig) -> Result<(), ConfigError> {
+    log::info!("Saving config file to: {:?}", app_config.config_path);
+    let provider_str = app_config.provider.to_string();
+
+    let logger_str = match app_config.logger {
+        LevelFilter::Info => "info",
+        LevelFilter::Debug => "debug",
+        LevelFilter::Trace => "trace",
+        LevelFilter::Warn => "warn",
+        LevelFilter::Error => "error",
+        LevelFilter::Off => "off",
+    };
+
+    let content = format!("provider={}\nlogger={}\n", provider_str, logger_str);
+
+    match &app_config.config_path {
+        Some(config_path) => {
+            fs::write(&config_path, content).map_err(|e| {
+                ConfigError::InvalidConfig(format!("Could not write config file: {}", e))
+            })?;
+
+            Ok(())
+        }
+        None => {
+            return Err(ConfigError::InvalidConfig(
+                "Config path is not set".to_string(),
+            ));
+        }
+    }
 }

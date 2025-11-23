@@ -1,11 +1,14 @@
-#[derive(Debug, Clone)]
+use thiserror::Error;
+
+#[derive(Error, Debug)]
 pub enum ConfigError {
+    #[error("Invalid config: {0}")]
     InvalidConfig(String),
+    #[error("Config directory not found: {0}")]
     ConfigDirectoryNotFound(String),
+    #[error("Invalid provider: {0}")]
+    InvalidProvider(String),
+    #[error("Provider not provided")]
+    InvalidArgument(String),
 }
 
-impl std::fmt::Display for ConfigError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Config error: {}", self)
-    }
-}
