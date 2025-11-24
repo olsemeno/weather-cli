@@ -23,7 +23,7 @@ struct ForecastDay {
 
 #[derive(Deserialize, Debug)]
 struct Day {
-    maxtemp_c: f64
+    maxtemp_c: f64,
 }
 
 pub struct WeatherAPIProvider;

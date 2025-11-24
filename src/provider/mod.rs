@@ -1,4 +1,4 @@
-pub mod provider_service;
-pub mod weather;
 mod provider;
+pub mod provider_service;
 mod providers;
+pub mod weather;

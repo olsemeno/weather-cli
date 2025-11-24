@@ -1,6 +1,6 @@
-pub mod logger;
-pub mod errors;
+pub mod command;
 pub mod config;
 pub mod enums;
-pub mod command;
+pub mod errors;
+pub mod logger;
 pub mod provider;

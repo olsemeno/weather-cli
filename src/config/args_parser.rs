@@ -32,11 +32,10 @@ pub fn parse_args(args: &[String]) -> Result<CommandType, ConfigError> {
             return Err(ConfigError::InvalidArgument(format!(
                 "Unknown argument: {}",
                 arg
-            )))
+            )));
         }
     }
 }
-
 
 pub fn print_help() {
     println!("Usage: weather <command> <params>\n");

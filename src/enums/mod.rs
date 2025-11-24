@@ -1,11 +1,10 @@
-use std::str::FromStr;
 use crate::errors::config_error::ConfigError;
-
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ProviderType {
-  OpenWeather,
-  WeatherAPI,
+    OpenWeather,
+    WeatherAPI,
 }
 
 impl FromStr for ProviderType {
@@ -16,7 +15,6 @@ impl FromStr for ProviderType {
             "openweather" => Ok(ProviderType::OpenWeather),
             "weatherapi" => Ok(ProviderType::WeatherAPI),
             _ => Err(ConfigError::InvalidProvider(s.to_string())),
-
         }
     }
 }
@@ -30,12 +28,11 @@ impl ToString for ProviderType {
     }
 }
 
-
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum CommandType {
-  Configure(ProviderType),
-  Get(Vec<String>),
-  List,
+    Configure(ProviderType),
+    Get(Vec<String>),
+    List,
 }
 
 impl ToString for CommandType {

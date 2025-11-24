@@ -15,7 +15,10 @@ pub trait Provider {
             log::debug!("Last parameter: {:?}", params.last());
             let last_param = params.last()?;
             if last_param.parse::<i32>().is_ok() {
-                log::debug!("Last parameter is an integer: {:?}", last_param.parse::<i32>().unwrap());
+                log::debug!(
+                    "Last parameter is an integer: {:?}",
+                    last_param.parse::<i32>().unwrap()
+                );
                 Some(last_param.parse::<i32>().unwrap())
             } else {
                 None
@@ -24,5 +27,4 @@ pub trait Provider {
             None
         }
     }
-
 }

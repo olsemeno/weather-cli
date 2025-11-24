@@ -1,4 +1,5 @@
 use chrono::Local;
+use lazy_static::lazy_static;
 #[cfg(unix)]
 use libc::{c_int, signal, SIGHUP};
 use log::{LevelFilter, Log, Metadata, Record};
@@ -6,7 +7,6 @@ use std::fs::{self, File, OpenOptions};
 use std::io::{self, Write};
 use std::path::Path;
 use std::sync::{Arc, Mutex};
-use lazy_static::lazy_static;
 
 //reusing my logger from another project
 //ref: https://github.com/specure/nettest/tree/main/src/logger

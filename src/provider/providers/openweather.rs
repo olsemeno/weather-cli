@@ -48,7 +48,6 @@ impl Provider for OpenWeatherProvider {
 
         let days = date_param.unwrap_or(1);
 
-
         if days > 5 || days < 1 {
             return Err(ProviderError::APIError(
                 "Forecast days cannot be more than 5 and less than 1".into(),
@@ -92,10 +91,15 @@ impl Provider for OpenWeatherProvider {
 
         let mut weathers = Vec::new();
         let mut processed_dates = HashSet::new();
-        
+
         for forecast_item in weather_data.list {
-            let date = forecast_item.dt_txt.split_whitespace().next().unwrap_or(&forecast_item.dt_txt).to_string();
-            
+            let date = forecast_item
+                .dt_txt
+                .split_whitespace()
+                .next()
+                .unwrap_or(&forecast_item.dt_txt)
+                .to_string();
+
             if !processed_dates.contains(&date) && weathers.len() < days as usize {
                 let weather = WeatherBuilder::new()
                     .temperature(forecast_item.main.temp_max)

@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+
+    - name: Cache cargo dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
+
+    - name: Install rustfmt and clippy
+      run: |
+        rustup component add rustfmt clippy
+
+    - name: Check formatting
+      run: cargo fmt --all -- --check
+      continue-on-error: true
+
+    # - name: Run clippy
+    #   run: cargo clippy --all-targets --all-features -- -D warnings
+    #   continue-on-error: true
+
+    - name: Build
+      run: cargo build --verbose
+
+    - name: Run integration tests
+      run: cargo test --test api_integration_test --verbose
+      env:
+        WEATHERAPI_KEY: ${{ secrets.WEATHERAPI_KEY }}
+        OPENWEATHER_KEY: ${{ secrets.OPENWEATHER_KEY }}
+

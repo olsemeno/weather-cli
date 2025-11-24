@@ -1,11 +1,11 @@
+use crate::config::config_file_parser::read_config_file;
+use crate::config::config_file_parser::save_config_file;
 use crate::enums::ProviderType;
 use crate::errors::config_error::ConfigError;
 use lazy_static::lazy_static;
 use log::LevelFilter;
-use std::sync::{Arc, Mutex};
-use crate::config::config_file_parser::read_config_file;
-use crate::config::config_file_parser::save_config_file;
 use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
 
 lazy_static! {
     pub static ref APP_CONFIG: Arc<Mutex<Option<AppConfig>>> = Arc::new(Mutex::new(None));
@@ -100,5 +100,4 @@ impl AppConfig {
     pub fn set_weatherapi_api_key(&mut self, weatherapi_api_key: String) {
         self.weatherapi_api_key = Some(weatherapi_api_key);
     }
-
 }

@@ -13,4 +13,3 @@ pub enum ConfigError {
     #[error("API key is required: {0}")]
     APIKeyRequired(String),
 }
-

@@ -1,7 +1,7 @@
-use weather::config::app_config::AppConfig;
-use weather::logger;
-use weather::config::args_parser;
 use weather::command::command_service;
+use weather::config::app_config::AppConfig;
+use weather::config::args_parser;
+use weather::logger;
 fn main() {
     let app_config = match AppConfig::from_file() {
         Ok(config) => config,
@@ -28,26 +28,10 @@ fn main() {
         Ok(result) => {
             println!("{}", result.get_printable_result());
             std::process::exit(0);
-        },
+        }
         Err(e) => {
             eprintln!("Failed to execute command. {}", e);
             std::process::exit(1);
         }
     };
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

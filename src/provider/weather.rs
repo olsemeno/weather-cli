@@ -15,7 +15,11 @@ impl Weather {
 
 impl std::fmt::Display for Weather {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Temperature: {:.1}°C, Date: {}", self.temperature, self.date)
+        write!(
+            f,
+            "Temperature: {:.1}°C, Date: {}",
+            self.temperature, self.date
+        )
     }
 }
 
@@ -42,8 +46,12 @@ impl WeatherBuilder {
         self
     }
     pub fn build(self) -> Result<Weather, Box<dyn std::error::Error + Send + Sync>> {
-        let temperature = self.temperature.ok_or(ProviderError::TemperatureRequired("Temperature is required".into()))?;
-        let date = self.date.ok_or(ProviderError::DateRequired("Date is required".into()))?;
+        let temperature = self.temperature.ok_or(ProviderError::TemperatureRequired(
+            "Temperature is required".into(),
+        ))?;
+        let date = self
+            .date
+            .ok_or(ProviderError::DateRequired("Date is required".into()))?;
         Ok(Weather { temperature, date })
     }
 }
