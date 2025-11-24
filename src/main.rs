@@ -1,7 +1,7 @@
-use weather_cli::config::app_config::AppConfig;
-use weather_cli::logger;
-use weather_cli::config::args_parser;
-use weather_cli::command::command_service;
+use weather::config::app_config::AppConfig;
+use weather::logger;
+use weather::config::args_parser;
+use weather::command::command_service;
 fn main() {
     let app_config = match AppConfig::from_file() {
         Ok(config) => config,

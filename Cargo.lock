@@ -1204,7 +1204,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "weather-cli"
+name = "weather"
 version = "0.1.0"
 dependencies = [
  "anyhow",
