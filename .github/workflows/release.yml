@@ -1,0 +1,198 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to release from'
+        required: true
+        default: 'main'
+        type: string
+      version:
+        description: 'Release version (e.g., 0.0.1)'
+        required: true
+        type: string
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  create-tag:
+    name: Create Release Tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Version must be in format X.Y.Z (e.g., 0.0.1)"
+            exit 1
+          fi
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          TAG="v${{ github.event.inputs.version }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag $TAG already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create and push tag
+        if: steps.check_tag.outputs.exists == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="v${{ github.event.inputs.version }}"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+          echo "Created tag: $TAG"
+
+      - name: Tag already exists
+        if: steps.check_tag.outputs.exists == 'true'
+        run: |
+          echo "Tag v${{ github.event.inputs.version }} already exists, skipping tag creation"
+
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    needs: create-tag
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Cache cargo dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Build release
+        run: cargo build --release --verbose
+
+      - name: Create archive
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          BINARY_NAME="weather"
+          ARCHIVE_NAME="weather-${VERSION}-macos.tar.gz"
+          tar -czf "${ARCHIVE_NAME}" -C target/release "${BINARY_NAME}"
+          echo "ARCHIVE_NAME=${ARCHIVE_NAME}" >> $GITHUB_ENV
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: weather-macos-${{ github.event.inputs.version }}
+          path: ${{ env.ARCHIVE_NAME }}
+          retention-days: 30
+
+  build-ubuntu:
+    name: Build Ubuntu
+    runs-on: ubuntu-latest
+    needs: create-tag
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Cache cargo dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Build release
+        run: cargo build --release --verbose
+
+      - name: Create archive
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          BINARY_NAME="weather"
+          ARCHIVE_NAME="weather-${VERSION}-ubuntu.tar.gz"
+          tar -czf "${ARCHIVE_NAME}" -C target/release "${BINARY_NAME}"
+          echo "ARCHIVE_NAME=${ARCHIVE_NAME}" >> $GITHUB_ENV
+
+      - name: Upload Ubuntu artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: weather-ubuntu-${{ github.event.inputs.version }}
+          path: ${{ env.ARCHIVE_NAME }}
+          retention-days: 30
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [create-tag, build-macos, build-ubuntu]
+    if: success()
+    steps:
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: weather-macos-${{ github.event.inputs.version }}
+          path: ./artifacts/macos
+
+      - name: Download Ubuntu artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: weather-ubuntu-${{ github.event.inputs.version }}
+          path: ./artifacts/ubuntu
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          name: Release v${{ github.event.inputs.version }}
+          body: |
+            Release v${{ github.event.inputs.version }}
+            
+            ## Downloads
+            
+            - **macOS**: [weather-${{ github.event.inputs.version }}-macos.tar.gz](https://github.com/${{ github.repository }}/releases/download/v${{ github.event.inputs.version }}/weather-${{ github.event.inputs.version }}-macos.tar.gz)
+            - **Ubuntu**: [weather-${{ github.event.inputs.version }}-ubuntu.tar.gz](https://github.com/${{ github.repository }}/releases/download/v${{ github.event.inputs.version }}/weather-${{ github.event.inputs.version }}-ubuntu.tar.gz)
+          files: |
+            ./artifacts/macos/*
+            ./artifacts/ubuntu/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
