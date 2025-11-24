@@ -31,9 +31,6 @@ weather help
 # Run all tests
 cargo test
 
-# Run integration tests with real API calls
-cargo test --test api_integration_test
-
 ```
 
 ## Download
