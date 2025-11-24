@@ -15,7 +15,7 @@ impl ExecutionResult for ListExecutionResult {
     fn get_printable_result(&self) -> String {
         self.providers
             .iter()
-            .map(|p| format!("{}: {}", p.0, p.1))
+            .map(|p| format!("\n{}: {}\n", p.0, p.1))
             .collect::<Vec<String>>()
             .join("\n")
     }

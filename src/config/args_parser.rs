@@ -37,7 +37,7 @@ pub fn print_help() {
     println!("Usage: weather <command> <params>\n");
     println!("Commands:\n");
     println!("  get <city> [days] - get weather for a city\n");
-    println!("  list - list all cities\n");
+    println!("  list - list all providers\n");
     println!("  configure <provider> - configure the provider\n");
     println!("  help | --help | -h - print this help message\n");
 }
