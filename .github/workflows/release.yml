@@ -20,25 +20,21 @@ jobs:
   create-tag:
     name: Create Release Tag
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch }}
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Validate version format
-        run: |
-          VERSION="${{ github.event.inputs.version }}"
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Error: Version must be in format X.Y.Z (e.g., 0.0.1)"
-            exit 1
-          fi
 
       - name: Check if tag exists
         id: check_tag
@@ -53,8 +49,6 @@ jobs:
 
       - name: Create and push tag
         if: steps.check_tag.outputs.exists == 'false'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="v${{ github.event.inputs.version }}"
           git tag -a "$TAG" -m "Release $TAG"
@@ -106,7 +100,7 @@ jobs:
           echo "ARCHIVE_NAME=${ARCHIVE_NAME}" >> $GITHUB_ENV
 
       - name: Upload macOS artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: weather-macos-${{ github.event.inputs.version }}
           path: ${{ env.ARCHIVE_NAME }}
@@ -152,7 +146,7 @@ jobs:
           echo "ARCHIVE_NAME=${ARCHIVE_NAME}" >> $GITHUB_ENV
 
       - name: Upload Ubuntu artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: weather-ubuntu-${{ github.event.inputs.version }}
           path: ${{ env.ARCHIVE_NAME }}
@@ -163,15 +157,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: [create-tag, build-macos, build-ubuntu]
     if: success()
+    permissions:
+      contents: write
     steps:
       - name: Download macOS artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: weather-macos-${{ github.event.inputs.version }}
           path: ./artifacts/macos
 
       - name: Download Ubuntu artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: weather-ubuntu-${{ github.event.inputs.version }}
           path: ./artifacts/ubuntu
