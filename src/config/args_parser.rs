@@ -9,30 +9,26 @@ pub fn parse_args(args: &[String]) -> Result<CommandType, ConfigError> {
     match arg.as_str() {
         "configure" => {
             if index + 1 >= args.len() {
-                return Err(ConfigError::InvalidArgument(format!(
-                    "Provider not provided"
-                )));
+                return Err(ConfigError::InvalidArgument(
+                    "Provider not provided".to_string(),
+                ));
             }
             let provider = ProviderType::from_str(args[index + 1].as_str())?;
             let command = CommandType::Configure(provider);
-            return Ok(command);
+            Ok(command)
         }
-        "get" => {
-            return Ok(CommandType::Get(args[index + 1..].to_vec()));
-        }
-        "list" => {
-            return Ok(CommandType::List);
-        }
+        "get" => Ok(CommandType::Get(args[index + 1..].to_vec())),
+        "list" => Ok(CommandType::List),
         "help" | "--help" | "-h" => {
             print_help();
             std::process::exit(0);
         }
         _ => {
             print_help();
-            return Err(ConfigError::InvalidArgument(format!(
+            Err(ConfigError::InvalidArgument(format!(
                 "Unknown argument: {}",
                 arg
-            )));
+            )))
         }
     }
 }

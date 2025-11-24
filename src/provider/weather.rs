@@ -23,6 +23,7 @@ impl std::fmt::Display for Weather {
     }
 }
 
+#[derive(Default)]
 pub struct WeatherBuilder {
     temperature: Option<f64>,
     date: Option<String>,
@@ -30,10 +31,7 @@ pub struct WeatherBuilder {
 
 impl WeatherBuilder {
     pub fn new() -> Self {
-        WeatherBuilder {
-            temperature: None,
-            date: None,
-        }
+        Self::default()
     }
 
     pub fn temperature(mut self, temperature: f64) -> Self {

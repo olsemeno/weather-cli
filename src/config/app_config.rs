@@ -41,9 +41,7 @@ impl AppConfig {
                 *global_config = Some(config.clone());
                 Ok(config)
             }
-            Err(e) => {
-                return Err(e);
-            }
+            Err(e) => Err(e),
         }
     }
 
@@ -58,7 +56,7 @@ impl AppConfig {
     }
 
     pub fn rewrite_config_file(&self) -> Result<(), ConfigError> {
-        save_config_file(&self)
+        save_config_file(self)
     }
 
     pub fn get_logger(&self) -> LevelFilter {

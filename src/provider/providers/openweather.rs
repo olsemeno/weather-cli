@@ -1,6 +1,6 @@
 use crate::config::app_config::AppConfig;
 use crate::errors::provider_error::ProviderError;
-use crate::provider::provider::Provider;
+use crate::provider::Provider;
 use crate::provider::weather::{Weather, WeatherBuilder};
 use serde::Deserialize;
 use std::collections::HashSet;
@@ -40,7 +40,7 @@ impl Provider for OpenWeatherProvider {
 
         let date_param = self.validate_date_param(&params);
 
-        let city = if let Some(_) = date_param {
+        let city = if date_param.is_some() {
             params[..params.len() - 1].join(" ")
         } else {
             params.join(" ")
@@ -48,7 +48,7 @@ impl Provider for OpenWeatherProvider {
 
         let days = date_param.unwrap_or(1);
 
-        if days > 5 || days < 1 {
+        if !(1..=5).contains(&days) {
             return Err(ProviderError::APIError(
                 "Forecast days cannot be more than 5 and less than 1".into(),
             )

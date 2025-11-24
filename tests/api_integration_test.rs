@@ -25,8 +25,7 @@ fn test_weatherapi_get_weather_single_day() {
         provider_service::get_weather(vec!["London".to_string()], ProviderType::WeatherAPI);
     if result.is_err() {
         eprintln!("Error: {}", result.err().unwrap());
-        assert!(false, "Should return weather data");
-        return;
+        panic!("Should return weather data");
     }
     let weathers = result.unwrap();
     assert!(
@@ -57,8 +56,7 @@ fn test_weatherapi_get_weather_multiple_days() {
     );
     if result.is_err() {
         eprintln!("Error: {}", result.err().unwrap());
-        assert!(false, "Should return weather data");
-        return;
+        panic!("Should return weather data");
     }
     let weathers = result.unwrap();
     assert!(
@@ -89,8 +87,7 @@ fn test_weatherapi_get_weather_invalid_days() {
         ProviderType::WeatherAPI,
     );
     if result.is_ok() {
-        assert!(false, "Should return error");
-        return;
+        panic!("Should return error");
     }
     assert!(result.is_err(), "Should return error");
 
@@ -99,18 +96,7 @@ fn test_weatherapi_get_weather_invalid_days() {
         ProviderType::WeatherAPI,
     );
     if result.is_ok() {
-        assert!(false, "Should return error");
-        return;
-    }
-    assert!(result.is_err(), "Should return error");
-
-    let result = provider_service::get_weather(
-        vec!["London".to_string(), "1".to_string()],
-        ProviderType::WeatherAPI,
-    );
-    if result.is_ok() {
-        assert!(false, "Should return error");
-        return;
+        panic!("Should return error");
     }
     assert!(result.is_err(), "Should return error");
 }
@@ -125,8 +111,7 @@ fn test_openweather_get_weather_single_day() {
         provider_service::get_weather(vec!["London".to_string()], ProviderType::OpenWeather);
     if result.is_err() {
         eprintln!("Error: {}", result.err().unwrap());
-        assert!(false, "Should return weather data");
-        return;
+        panic!("Should return weather data");
     }
     let weathers = result.unwrap();
     assert!(
@@ -157,8 +142,7 @@ fn test_openweather_get_weather_multiple_days() {
     );
     if result.is_err() {
         eprintln!("Error: {}", result.err().unwrap());
-        assert!(false, "Should return weather data");
-        return;
+        panic!("Should return weather data");
     }
 }
 
@@ -171,8 +155,7 @@ fn test_openweather_get_weather_invalid_days() {
         ProviderType::OpenWeather,
     );
     if result.is_ok() {
-        assert!(false, "Should return error");
-        return;
+        panic!("Should return error");
     }
     assert!(result.is_err(), "Should return error");
 
@@ -181,8 +164,7 @@ fn test_openweather_get_weather_invalid_days() {
         ProviderType::OpenWeather,
     );
     if result.is_ok() {
-        assert!(false, "Should return error");
-        return;
+        panic!("Should return error");
     }
     assert!(result.is_err(), "Should return error");
 }

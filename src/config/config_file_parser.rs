@@ -29,7 +29,7 @@ pub fn read_config_file() -> Result<AppConfig, ConfigError> {
         }
         let default_config: &str = include_str!("../../weather-cli.conf");
 
-        if let Err(e) = fs::write(&config_path, &default_config) {
+        if let Err(e) = fs::write(&config_path, default_config) {
             let error = format!("Could not create config file: {}", e);
             return Err(ConfigError::InvalidConfig(error));
         }
@@ -94,7 +94,7 @@ fn parse_config_content(content: &str) -> Result<AppConfig, ConfigError> {
 
 pub fn save_config_file(app_config: &AppConfig) -> Result<(), ConfigError> {
     log::info!("Saving config file to: {:?}", app_config.get_config_path());
-    let provider_str = app_config.get_provider().to_string();
+    let provider_str = format!("{}", app_config.get_provider());
 
     let logger_str = match app_config.get_logger() {
         LevelFilter::Info => "info",
@@ -125,16 +125,14 @@ pub fn save_config_file(app_config: &AppConfig) -> Result<(), ConfigError> {
 
     match &app_config.get_config_path() {
         Some(config_path) => {
-            fs::write(&config_path, content).map_err(|e| {
+            fs::write(config_path, content).map_err(|e| {
                 ConfigError::InvalidConfig(format!("Could not write config file: {}", e))
             })?;
 
             Ok(())
         }
-        None => {
-            return Err(ConfigError::InvalidConfig(
-                "Config path is not set".to_string(),
-            ));
-        }
+        None => Err(ConfigError::InvalidConfig(
+            "Config path is not set".to_string(),
+        )),
     }
 }

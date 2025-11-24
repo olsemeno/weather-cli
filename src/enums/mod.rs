@@ -19,11 +19,11 @@ impl FromStr for ProviderType {
     }
 }
 
-impl ToString for ProviderType {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for ProviderType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ProviderType::OpenWeather => "OpenWeather".to_string(),
-            ProviderType::WeatherAPI => "WeatherAPI".to_string(),
+            ProviderType::OpenWeather => write!(f, "OpenWeather"),
+            ProviderType::WeatherAPI => write!(f, "WeatherAPI"),
         }
     }
 }
@@ -35,12 +35,12 @@ pub enum CommandType {
     List,
 }
 
-impl ToString for CommandType {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for CommandType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            CommandType::Configure(provider) => format!("Configure({})", provider.to_string()),
-            CommandType::Get(_) => "Get".to_string(),
-            CommandType::List => "List".to_string(),
+            CommandType::Configure(provider) => write!(f, "Configure({})", provider),
+            CommandType::Get(_) => write!(f, "Get"),
+            CommandType::List => write!(f, "List"),
         }
     }
 }

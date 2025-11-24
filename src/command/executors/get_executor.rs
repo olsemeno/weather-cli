@@ -31,16 +31,15 @@ impl CommandExecutor for GetExecutor {
     ) -> Result<Box<dyn ExecutionResult>, Box<dyn std::error::Error + Send + Sync>> {
         match command {
             CommandType::Get(params) => self.get_weather(params),
-            _ => {
-                return Err(Box::new(ExecutionError::InvalidCommand(
-                    command.to_string(),
-                )))
-            }
+            _ => Err(Box::new(ExecutionError::InvalidCommand(
+                format!("{}", command),
+            ))),
         }
     }
 }
 
 impl GetExecutor {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new() -> Box<dyn CommandExecutor> {
         Box::new(GetExecutor)
     }

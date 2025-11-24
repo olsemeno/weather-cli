@@ -1,5 +1,5 @@
 use crate::enums::ProviderType;
-use crate::provider::provider::Provider;
+use crate::provider::Provider;
 use crate::provider::providers::openweather::OpenWeatherProvider;
 use crate::provider::providers::weatherapi::WeatherAPIProvider;
 use crate::provider::weather::Weather;

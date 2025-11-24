@@ -13,14 +13,11 @@ pub struct ListExecutionResult {
 
 impl ExecutionResult for ListExecutionResult {
     fn get_printable_result(&self) -> String {
-        format!(
-            "{}",
-            self.providers
-                .iter()
-                .map(|p| format!("{}: {}", p.0.to_string(), p.1))
-                .collect::<Vec<String>>()
-                .join("\n")
-        )
+        self.providers
+            .iter()
+            .map(|p| format!("{}: {}", p.0, p.1))
+            .collect::<Vec<String>>()
+            .join("\n")
     }
 }
 
@@ -31,16 +28,15 @@ impl CommandExecutor for ListExecutor {
     ) -> Result<Box<dyn ExecutionResult>, Box<dyn std::error::Error + Send + Sync>> {
         match command {
             CommandType::List => self.list_providers(),
-            _ => {
-                return Err(Box::new(ExecutionError::InvalidCommand(
-                    command.to_string(),
-                )))
-            }
+            _ => Err(Box::new(ExecutionError::InvalidCommand(
+                format!("{}", command),
+            ))),
         }
     }
 }
 
 impl ListExecutor {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new() -> Box<dyn CommandExecutor> {
         Box::new(ListExecutor)
     }
