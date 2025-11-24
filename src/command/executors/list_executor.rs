@@ -1,18 +1,26 @@
-use crate::command::command_executor::ExecutionResult;
 use crate::command::command_executor::CommandExecutor;
+use crate::command::command_executor::ExecutionResult;
 use crate::enums::CommandType;
 use crate::enums::ProviderType;
 use crate::errors::execution_error::ExecutionError;
+use crate::provider::provider_service::describe_provider;
 
 pub struct ListExecutor;
 
 pub struct ListExecutionResult {
-    pub providers: Vec<ProviderType>,
+    pub providers: Vec<(ProviderType, String)>,
 }
 
 impl ExecutionResult for ListExecutionResult {
     fn get_printable_result(&self) -> String {
-        format!("Providers: {}", self.providers.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(", "))
+        format!(
+            "{}",
+            self.providers
+                .iter()
+                .map(|p| format!("{}: {}", p.0.to_string(), p.1))
+                .collect::<Vec<String>>()
+                .join("\n")
+        )
     }
 }
 
@@ -24,7 +32,9 @@ impl CommandExecutor for ListExecutor {
         match command {
             CommandType::List => self.list_providers(),
             _ => {
-                return Err(Box::new(ExecutionError::InvalidCommand(command.to_string())))
+                return Err(Box::new(ExecutionError::InvalidCommand(
+                    command.to_string(),
+                )))
             }
         }
     }
@@ -34,7 +44,20 @@ impl ListExecutor {
     pub fn new() -> Box<dyn CommandExecutor> {
         Box::new(ListExecutor)
     }
-    fn list_providers(&self) -> Result<Box<dyn ExecutionResult>, Box<dyn std::error::Error + Send + Sync>> {
-        Ok(Box::new(ListExecutionResult { providers: vec![ProviderType::OpenWeather, ProviderType::WeatherAPI] }))
+    fn list_providers(
+        &self,
+    ) -> Result<Box<dyn ExecutionResult>, Box<dyn std::error::Error + Send + Sync>> {
+        Ok(Box::new(ListExecutionResult {
+            providers: vec![
+                (
+                    ProviderType::OpenWeather,
+                    describe_provider(ProviderType::OpenWeather)?,
+                ),
+                (
+                    ProviderType::WeatherAPI,
+                    describe_provider(ProviderType::WeatherAPI)?,
+                ),
+            ],
+        }))
     }
 }

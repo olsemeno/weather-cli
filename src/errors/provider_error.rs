@@ -8,4 +8,10 @@ pub enum ProviderError {
     APIKeyRequired(String),
     #[error("API error: {0}")]
     APIError(String),
+    #[error("This provider does not support date parameter: {0}")]
+    DateParameterNotSupported(String),
+    #[error("Temperature is required")]
+    TemperatureRequired(String),
+    #[error("Date is required")]
+    DateRequired(String),
 }

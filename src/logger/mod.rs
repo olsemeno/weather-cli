@@ -69,8 +69,8 @@ impl Log for FileLogger {
             let _ = file.flush();
         }
 
-        let _ = io::stdout().write_all(message.as_bytes());
-        let _ = io::stdout().flush();
+        // let _ = io::stdout().write_all(message.as_bytes());
+        // let _ = io::stdout().flush();
     }
 
     fn flush(&self) {

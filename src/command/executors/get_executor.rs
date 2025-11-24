@@ -8,12 +8,12 @@ use crate::provider::provider_service::get_weather;
 pub struct GetExecutor;
 
 pub struct GetExecutionResult {
-    pub weather: Weather,
+    pub weathers: Vec<Weather>,
 }
 
 impl ExecutionResult for GetExecutionResult {
     fn get_printable_result(&self) -> String {
-        format!("Weather: {}", self.weather.to_string())
+        format!("Weather: \n{} ", self.weathers.iter().map(|w| w.to_string()).collect::<Vec<String>>().join("\n"))
     }
 }
 
@@ -39,7 +39,7 @@ impl GetExecutor {
         let app_config = AppConfig::get()
             .ok_or("App config not found")?;
         let weather = get_weather(params, app_config.get_provider())?;
-        Ok(Box::new(GetExecutionResult { weather }))
+        Ok(Box::new(GetExecutionResult { weathers: weather }))
     }
 }
 
