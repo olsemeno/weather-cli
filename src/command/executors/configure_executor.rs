@@ -3,6 +3,7 @@ use crate::command::command_executor::ExecutionResult;
 use crate::config::app_config::AppConfig;
 use crate::enums::CommandType;
 use crate::enums::ProviderType;
+use crate::errors::execution_error::ExecutionError;
 
 pub struct ConfigureExecutor;
 
@@ -12,7 +13,10 @@ pub struct ConfigureExecutionResult {
 
 impl ExecutionResult for ConfigureExecutionResult {
     fn get_printable_result(&self) -> String {
-        format!("Provider configured successfully: {}", self.provider.to_string())
+        format!(
+            "Provider configured successfully: {}",
+            self.provider.to_string()
+        )
     }
 }
 
@@ -24,9 +28,8 @@ impl CommandExecutor for ConfigureExecutor {
         match command {
             CommandType::Configure(provider) => self.configure_provider(provider),
             _ => {
-                return Err(Box::new(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    "Invalid command",
+                return Err(Box::new(ExecutionError::InvalidCommand(
+                    command.to_string(),
                 )))
             }
         }
@@ -49,7 +52,7 @@ impl ConfigureExecutor {
     ) -> Result<Box<dyn ExecutionResult>, Box<dyn std::error::Error + Send + Sync>> {
         match &mut AppConfig::get() {
             Some(app_config) => {
-                app_config.provider = provider;
+                app_config.set_provider(provider);
                 match app_config.rewrite_config_file() {
                     Ok(_) => Ok(ConfigureExecutionResult::new(provider)),
                     Err(e) => return Err(Box::new(e)),

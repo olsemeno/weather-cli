@@ -1,6 +1,7 @@
 use std::str::FromStr;
 use crate::errors::config_error::ConfigError;
 
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ProviderType {
   OpenWeather,
@@ -30,8 +31,19 @@ impl ToString for ProviderType {
 }
 
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum CommandType {
   Configure(ProviderType),
-  Get,
+  Get(Vec<String>),
+  List,
+}
+
+impl ToString for CommandType {
+    fn to_string(&self) -> String {
+        match self {
+            CommandType::Configure(provider) => format!("Configure({})", provider.to_string()),
+            CommandType::Get(_) => "Get".to_string(),
+            CommandType::List => "List".to_string(),
+        }
+    }
 }

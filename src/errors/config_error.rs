@@ -8,7 +8,9 @@ pub enum ConfigError {
     ConfigDirectoryNotFound(String),
     #[error("Invalid provider: {0}")]
     InvalidProvider(String),
-    #[error("Provider not provided")]
+    #[error("Invalid argument: {0}")]
     InvalidArgument(String),
+    #[error("API key is required: {0}")]
+    APIKeyRequired(String),
 }
 

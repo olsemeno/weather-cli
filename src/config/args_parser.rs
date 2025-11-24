@@ -5,26 +5,29 @@ use std::str::FromStr;
 
 pub fn parse_args(args: &[String]) -> Result<CommandType, ConfigError> {
     let index = 1;
-    while index < args.len() {
-        let arg = &args[index];
-        match arg.as_str() {
-            "configure" => {
-                if index + 1 >= args.len() {
-                    return Err(ConfigError::InvalidArgument(format!(
-                        "Provider not provided"
-                    )));
-                }
-                let provider = ProviderType::from_str(args[index + 1].as_str())?;
-                let command = CommandType::Configure(provider);
-                return Ok(command);
+    let arg = &args[index];
+    match arg.as_str() {
+        "configure" => {
+            if index + 1 >= args.len() {
+                return Err(ConfigError::InvalidArgument(format!(
+                    "Provider not provided"
+                )));
             }
-            _ => {
-                return Err(ConfigError::InvalidConfig(format!(
-                    "Unknown argument: {}",
-                    arg
-                )))
-            }
+            let provider = ProviderType::from_str(args[index + 1].as_str())?;
+            let command = CommandType::Configure(provider);
+            return Ok(command);
+        }
+        "get" => {
+            return Ok(CommandType::Get(args[index + 1..].to_vec()));
+        }
+        "list" => {
+            return Ok(CommandType::List);
+        }
+        _ => {
+            return Err(ConfigError::InvalidArgument(format!(
+                "Unknown argument: {}",
+                arg
+            )))
         }
     }
-    Ok(CommandType::Get)
 }

@@ -8,9 +8,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 pub fn read_config_file() -> Result<AppConfig, ConfigError> {
-    // Determine config file path based on OS
     let config_path = if cfg!(target_os = "macos") {
-        // On macOS use ~/.config/ as main directory
         let home_dir = env::var("HOME").unwrap_or_else(|_| "/tmp".to_string());
         PathBuf::from(format!("{}/.config/weather-cli.conf", home_dir))
     } else {
@@ -40,7 +38,7 @@ pub fn read_config_file() -> Result<AppConfig, ConfigError> {
     };
 
     let mut app_config = parse_config_content(&config_content)?;
-    app_config.config_path = Some(config_path);
+    app_config.set_config_path(Some(config_path));
     Ok(app_config)
 }
 
@@ -60,10 +58,10 @@ fn parse_config_content(content: &str) -> Result<AppConfig, ConfigError> {
 
             match key {
                 "provider" => {
-                    config.provider = ProviderType::from_str(value)?;
+                    config.set_provider(ProviderType::from_str(value)?);
                 }
                 "logger" => {
-                    config.logger = match value {
+                    config.set_logger(match value {
                         "info" => LevelFilter::Info,
                         "debug" => LevelFilter::Debug,
                         "trace" => LevelFilter::Trace,
@@ -73,7 +71,13 @@ fn parse_config_content(content: &str) -> Result<AppConfig, ConfigError> {
                                 value
                             )));
                         }
-                    };
+                    });
+                }
+                "openweather_api_key" => {
+                    config.set_openweather_api_key(value.to_string());
+                }
+                "weatherapi_api_key" => {
+                    config.set_weatherapi_api_key(value.to_string());
                 }
                 _ => {
                     return Err(ConfigError::InvalidConfig(format!(
@@ -89,10 +93,10 @@ fn parse_config_content(content: &str) -> Result<AppConfig, ConfigError> {
 }
 
 pub fn save_config_file(app_config: &AppConfig) -> Result<(), ConfigError> {
-    log::info!("Saving config file to: {:?}", app_config.config_path);
-    let provider_str = app_config.provider.to_string();
+    log::info!("Saving config file to: {:?}", app_config.get_config_path());
+    let provider_str = app_config.get_provider().to_string();
 
-    let logger_str = match app_config.logger {
+    let logger_str = match app_config.get_logger() {
         LevelFilter::Info => "info",
         LevelFilter::Debug => "debug",
         LevelFilter::Trace => "trace",
@@ -101,9 +105,25 @@ pub fn save_config_file(app_config: &AppConfig) -> Result<(), ConfigError> {
         LevelFilter::Off => "off",
     };
 
-    let content = format!("provider={}\nlogger={}\n", provider_str, logger_str);
+    let openweather_api_key =
+        app_config
+            .get_openweather_api_key()
+            .ok_or(ConfigError::APIKeyRequired(
+                "OpenWeather API key is required".into(),
+            ))?;
+    let weatherapi_api_key =
+        app_config
+            .get_weatherapi_api_key()
+            .ok_or(ConfigError::APIKeyRequired(
+                "WeatherAPI API key is required".into(),
+            ))?;
 
-    match &app_config.config_path {
+    let content = format!(
+        "provider={}\nlogger={}\nopenweather_api_key={}\nweatherapi_api_key={}\n",
+        provider_str, logger_str, openweather_api_key, weatherapi_api_key,
+    );
+
+    match &app_config.get_config_path() {
         Some(config_path) => {
             fs::write(&config_path, content).map_err(|e| {
                 ConfigError::InvalidConfig(format!("Could not write config file: {}", e))

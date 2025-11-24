@@ -13,9 +13,11 @@ lazy_static! {
 
 #[derive(Debug, Clone)]
 pub struct AppConfig {
-    pub config_path: Option<PathBuf>,
-    pub logger: LevelFilter,
-    pub provider: ProviderType,
+    config_path: Option<PathBuf>,
+    logger: LevelFilter,
+    provider: ProviderType,
+    openweather_api_key: Option<String>,
+    weatherapi_api_key: Option<String>,
 }
 
 impl Default for AppConfig {
@@ -24,6 +26,8 @@ impl Default for AppConfig {
             config_path: Option::None,
             logger: LevelFilter::Info,
             provider: ProviderType::OpenWeather,
+            openweather_api_key: None,
+            weatherapi_api_key: None,
         }
     }
 }
@@ -56,5 +60,45 @@ impl AppConfig {
     pub fn rewrite_config_file(&self) -> Result<(), ConfigError> {
         save_config_file(&self)
     }
-    
+
+    pub fn get_logger(&self) -> LevelFilter {
+        self.logger
+    }
+
+    pub fn get_provider(&self) -> ProviderType {
+        self.provider
+    }
+
+    pub fn get_config_path(&self) -> &Option<PathBuf> {
+        &self.config_path
+    }
+
+    pub fn set_logger(&mut self, logger: LevelFilter) {
+        self.logger = logger;
+    }
+
+    pub fn set_provider(&mut self, provider: ProviderType) {
+        self.provider = provider;
+    }
+
+    pub fn set_config_path(&mut self, config_path: Option<PathBuf>) {
+        self.config_path = config_path;
+    }
+
+    pub fn get_openweather_api_key(&self) -> Option<&String> {
+        self.openweather_api_key.as_ref()
+    }
+
+    pub fn get_weatherapi_api_key(&self) -> Option<&String> {
+        self.weatherapi_api_key.as_ref()
+    }
+
+    pub fn set_openweather_api_key(&mut self, openweather_api_key: String) {
+        self.openweather_api_key = Some(openweather_api_key);
+    }
+
+    pub fn set_weatherapi_api_key(&mut self, weatherapi_api_key: String) {
+        self.weatherapi_api_key = Some(weatherapi_api_key);
+    }
+
 }

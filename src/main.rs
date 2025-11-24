@@ -10,7 +10,7 @@ fn main() {
             std::process::exit(1);
         }
     };
-    logger::init_logger(app_config.logger).unwrap();
+    logger::init_logger(app_config.get_logger()).unwrap();
     log::info!("Logger initialized");
     log::info!("App config: {:?}", app_config);
 
@@ -24,9 +24,11 @@ fn main() {
         }
     };
 
-     match command_service::execute_command(command) {
+
+    match command_service::execute_command(command) {
         Ok(result) => {
             println!("{}", result.get_printable_result());
+            std::process::exit(0);
         },
         Err(e) => {
             eprintln!("Failed to execute command. {}", e);
@@ -34,18 +36,19 @@ fn main() {
         }
     };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
