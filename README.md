@@ -36,18 +36,9 @@ cargo test --test api_integration_test
 
 ```
 
-## CI/CD Workflows
+## Download
 
-### CI Workflow (`ci.yml`)
-- Runs on every push and pull request to `main`
-- Checks code formatting with `rustfmt`
-- Runs `clippy` for code quality
-- Builds the project
-- Runs integration tests with real API calls
+Download the latest release from [GitHub Releases](https://github.com/olsemeno/weather-cli/releases):
 
-### Release Workflow (`release.yml`)
-- Manual workflow for creating releases
-- Allows selecting branch and version (e.g., `0.0.1`)
-- Creates git tag `v{version}`
-- Builds release binaries for macOS and Ubuntu
-- Creates GitHub Release with downloadable artifacts
+- **macOS**: [weather-*-macos.tar.gz](https://github.com/olsemeno/weather-cli/releases/latest)
+- **Ubuntu**: [weather-*-ubuntu.tar.gz](https://github.com/olsemeno/weather-cli/releases/latest)
