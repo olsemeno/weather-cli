@@ -48,9 +48,10 @@ impl Provider for OpenWeatherProvider {
 
         let days = date_param.unwrap_or(1);
 
+
         if days > 5 || days < 1 {
             return Err(ProviderError::APIError(
-                "Forecast days cannot be more than 5".into(),
+                "Forecast days cannot be more than 5 and less than 1".into(),
             )
             .into());
         }
@@ -109,6 +110,6 @@ impl Provider for OpenWeatherProvider {
     }
 
     fn describe(&self) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-        Ok("OpenWeather provider. Use city name or city id instead of city name. Supports date parameter (up to 5 days, free tier).".to_string())
+        Ok("OpenWeather provider.\nUse city name or city id instead of city name.\nSupports date parameter. Days range: 1-5 (free tier)".to_string())
     }
 }

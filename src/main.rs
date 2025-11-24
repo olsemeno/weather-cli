@@ -24,7 +24,6 @@ fn main() {
         }
     };
 
-
     match command_service::execute_command(command) {
         Ok(result) => {
             println!("{}", result.get_printable_result());

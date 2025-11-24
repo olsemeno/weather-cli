@@ -49,7 +49,7 @@ impl Provider for WeatherAPIProvider {
 
         if days > 14 || days < 1 {
             return Err(ProviderError::APIError(
-                "Forecast days cannot be more than 14".into(),
+                "Forecast days cannot be more than 14 and less than 1".into(),
             )
             .into());
         }
@@ -100,6 +100,6 @@ impl Provider for WeatherAPIProvider {
     }
 
     fn describe(&self) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-        Ok("WeatherAPI provider. Use city name or city id instead of city name. Supports date parameter.".to_string())
+        Ok("WeatherAPI provider. \nUse city name or city id instead of city name.\nSupports date parameter. Days range: 1-14".to_string())
     }
 }
